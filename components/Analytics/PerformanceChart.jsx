@@ -242,9 +242,9 @@ const PerformanceChart = ({ data, timeRange, selectedMetric }) => {
       return { x, y, metric, value, angle }
     })
 
-    const pathData = points.map((point, index) => 
+    const pathData = `${points.map((point, index) => 
       `${index === 0 ? 'M' : 'L'} ${point.x},${point.y}`
-    ).join(' ') + ' Z'
+    ).join(' ')} Z`
 
     return (
       <div className="relative">
@@ -300,7 +300,7 @@ const PerformanceChart = ({ data, timeRange, selectedMetric }) => {
                 dominantBaseline="middle"
                 className="text-xs fill-slate-700 font-medium"
               >
-                {point.metric.charAt(0).toUpperCase() + point.metric.slice(1)}
+                {`${point.metric.charAt(0).toUpperCase()}${point.metric.slice(1)}`}
               </text>
             </g>
           ))}

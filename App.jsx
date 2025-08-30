@@ -7,37 +7,23 @@ import AuthContainer from './components/Auth/AuthContainer'
 import Dashboard from './components/Dashboard/Dashboard'
 import { 
   Brain, 
-  Camera, 
-  BarChart3, 
-  Users, 
   Trophy, 
   Target, 
   Zap, 
   TrendingUp,
-  Shield,
-  Cloud,
-  Smartphone,
   ChevronRight,
   Play,
   Star,
   CheckCircle,
-  ArrowRight,
   Sparkles,
-  Eye,
-  Activity,
-  Award
+  Activity
 } from 'lucide-react'
 
 // Import images
 import { 
-  iceDancingImage, 
-  competitionImage, 
-  aiSportsImage, 
-  motionCaptureImage, 
-  analyticsImage,
-  trainingImage,
-  performanceImage,
-  coachingImage
+  skateAdjustmentImage,
+  skatePreparationImage,
+  gracefulPoseImage
 } from './assets/placeholder.js'
 
 function App() {
@@ -207,8 +193,8 @@ function App() {
             <div className="relative">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                 <img 
-                  src={iceDancingImage} 
-                  alt="AI-powered ice dance analysis" 
+                  src={skateAdjustmentImage} 
+                  alt="Skater adjusting skate with focus and preparation" 
                   className="w-full h-auto"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-blue-900/50 via-transparent to-transparent"></div>
@@ -300,8 +286,8 @@ function App() {
             <div className="relative">
               <div className="relative rounded-2xl overflow-hidden shadow-2xl">
                 <img 
-                  src={trainingImage} 
-                  alt="AI training analysis" 
+                  src={gracefulPoseImage} 
+                  alt="Graceful extended pose showcasing flexibility and balance" 
                   className="w-full h-auto"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 to-transparent"></div>
@@ -354,7 +340,7 @@ function App() {
                       <div className="text-sm text-slate-600">{testimonial.role}</div>
                     </div>
                   </div>
-                  <p className="text-slate-700 leading-relaxed">"{testimonial.content}"</p>
+                  <p className="text-slate-700 leading-relaxed">&ldquo;{testimonial.content}&rdquo;</p>
                 </CardContent>
               </Card>
             ))}
@@ -362,7 +348,240 @@ function App() {
         </div>
       </section>
 
+      {/* Pricing Section */}
+      <section id="pricing" className="py-20 bg-gradient-to-br from-slate-50 to-blue-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <Badge className="bg-blue-100 text-blue-700 border-blue-200 mb-4">
+              <Trophy className="h-3 w-3 mr-1" />
+              Choose Your Plan
+            </Badge>
+            <h2 className="text-4xl font-bold text-slate-900 mb-4">
+              Simple, Transparent Pricing
+            </h2>
+            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+              Start with our free trial and scale up as your training needs grow. No hidden fees, no surprises.
+            </p>
+          </div>
+          <div className="grid lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+            {/* Free Trial */}
+            <Card className="relative border-2 border-blue-200 bg-white shadow-lg hover:shadow-xl transition-all duration-300">
+              <CardHeader className="text-center pb-4">
+                <Badge className="bg-green-100 text-green-700 border-green-200 mb-2">Most Popular</Badge>
+                <CardTitle className="text-2xl font-bold text-slate-900">Free Trial</CardTitle>
+                <div className="text-4xl font-bold text-slate-900">$0</div>
+                <CardDescription className="text-slate-600">Perfect for getting started</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <ul className="space-y-3">
+                  <li className="flex items-center space-x-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-slate-700">1–3 video analyses</span>
+                  </li>
+                  <li className="flex items-center space-x-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-slate-700">Basic feedback (rhythm, posture)</span>
+                  </li>
+                  <li className="flex items-center space-x-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-slate-700">Watermarked videos</span>
+                  </li>
+                  <li className="flex items-center space-x-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-slate-700">7-day access</span>
+                  </li>
+                </ul>
+                <Button 
+                  className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white"
+                  onClick={() => window.location.href = '/login'}
+                >
+                  Start Free Trial
+                </Button>
+              </CardContent>
+            </Card>
 
+            {/* Basic */}
+            <Card className="relative border-2 border-slate-200 bg-white shadow-lg hover:shadow-xl transition-all duration-300">
+              <CardHeader className="text-center pb-4">
+                <CardTitle className="text-2xl font-bold text-slate-900">Basic</CardTitle>
+                <div className="text-4xl font-bold text-slate-900">$29</div>
+                <div className="text-sm text-slate-500">per month</div>
+                <CardDescription className="text-slate-600">For serious athletes</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <ul className="space-y-3">
+                  <li className="flex items-center space-x-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-slate-700">5–10 video uploads/month</span>
+                  </li>
+                  <li className="flex items-center space-x-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-slate-700">AI breakdown of timing, edges, and flow</span>
+                  </li>
+                  <li className="flex items-center space-x-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-slate-700">Progress tracking</span>
+                  </li>
+                  <li className="flex items-center space-x-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-slate-700">Sync with mobile app</span>
+                  </li>
+                </ul>
+                <Button 
+                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white"
+                  onClick={() => window.location.href = '/login'}
+                >
+                  Choose Basic
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Pro */}
+            <Card className="relative border-2 border-purple-200 bg-white shadow-lg hover:shadow-xl transition-all duration-300">
+              <CardHeader className="text-center pb-4">
+                <Badge className="bg-purple-100 text-purple-700 border-purple-200 mb-2">Pro</Badge>
+                <CardTitle className="text-2xl font-bold text-slate-900">Pro</CardTitle>
+                <div className="text-4xl font-bold text-slate-900">$79</div>
+                <div className="text-sm text-slate-500">per month</div>
+                <CardDescription className="text-slate-600">For competitive athletes</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <ul className="space-y-3">
+                  <li className="flex items-center space-x-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-slate-700">Unlimited uploads</span>
+                  </li>
+                  <li className="flex items-center space-x-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-slate-700">Advanced AI analysis (edge depth, rotational alignment, pair spacing)</span>
+                  </li>
+                  <li className="flex items-center space-x-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-slate-700">Frame-by-frame comparison to elite skaters</span>
+                  </li>
+                  <li className="flex items-center space-x-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-slate-700">Coach collaboration tools</span>
+                  </li>
+                </ul>
+                <Button 
+                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                  onClick={() => window.location.href = '/login'}
+                >
+                  Choose Pro
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Elite / Team */}
+            <Card className="relative border-2 border-gold-200 bg-white shadow-lg hover:shadow-xl transition-all duration-300">
+              <CardHeader className="text-center pb-4">
+                <Badge className="bg-yellow-100 text-yellow-700 border-yellow-200 mb-2">Elite</Badge>
+                <CardTitle className="text-2xl font-bold text-slate-900">Elite / Team</CardTitle>
+                <div className="text-4xl font-bold text-slate-900">Custom</div>
+                <div className="text-sm text-slate-500">$200+/month</div>
+                <CardDescription className="text-slate-600">For training centers & choreographers</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <ul className="space-y-3">
+                  <li className="flex items-center space-x-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-slate-700">Multi-skater accounts</span>
+                  </li>
+                  <li className="flex items-center space-x-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-slate-700">Integration with competition scoring standards (ISU)</span>
+                  </li>
+                  <li className="flex items-center space-x-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-slate-700">Priority support</span>
+                  </li>
+                  <li className="flex items-center space-x-3">
+                    <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-slate-700">Custom training center features</span>
+                  </li>
+                </ul>
+                <Button 
+                  className="w-full bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white"
+                  onClick={() => window.location.href = '/login'}
+                >
+                  Contact Sales
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Preparation & Focus Section */}
+      <section className="py-20 bg-gradient-to-br from-slate-50 to-indigo-50">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="relative">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                <img 
+                  src={skatePreparationImage} 
+                  alt="Skater carefully preparing and lacing skates with focus" 
+                  className="w-full h-auto"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 to-transparent"></div>
+                <div className="absolute bottom-4 left-4 right-4">
+                  <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
+                      <span className="text-sm font-medium text-slate-800">Preparation is Key</span>
+                    </div>
+                    <div className="text-xs text-slate-600 mt-1">Every detail matters in ice dance</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-6">
+              <Badge className="bg-indigo-100 text-indigo-700 border-indigo-200">
+                <Target className="h-3 w-3 mr-1" />
+                Attention to Detail
+              </Badge>
+              <h2 className="text-4xl font-bold text-slate-900">
+                Excellence Begins with Preparation
+              </h2>
+              <p className="text-xl text-slate-600 leading-relaxed">
+                Our AI system recognizes that every aspect of ice dance performance starts with meticulous preparation. 
+                From equipment setup to mental focus, we help athletes develop the discipline needed for success.
+              </p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <span className="font-medium text-slate-900">Equipment Check</span>
+                  </div>
+                  <p className="text-sm text-slate-600">AI-powered skate and gear analysis</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <span className="font-medium text-slate-900">Mental Preparation</span>
+                  </div>
+                  <p className="text-sm text-slate-600">Focus and concentration training</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <span className="font-medium text-slate-900">Warm-up Routines</span>
+                  </div>
+                  <p className="text-sm text-slate-600">Personalized preparation sequences</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <span className="font-medium text-slate-900">Performance Readiness</span>
+                  </div>
+                  <p className="text-sm text-slate-600">AI assessment of competition readiness</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-blue-600 to-indigo-700">

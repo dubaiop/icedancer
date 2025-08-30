@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
@@ -8,19 +8,17 @@ import ImageGallery from './ImageGallery'
 import { 
   BarChart3, 
   Camera, 
-  Users, 
   Trophy, 
   Target, 
-  Star, 
-  Zap, 
   TrendingUp,
   Brain,
-  Settings,
   Play,
   Award,
   Clock,
   CheckCircle,
-  Image
+  Image,
+  Sparkles,
+  Settings
 } from 'lucide-react'
 
 const DemoPage = () => {
@@ -252,7 +250,7 @@ const DemoPage = () => {
                     <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                       <h4 className="font-semibold text-yellow-800 mb-2">Competition Readiness</h4>
                       <p className="text-sm text-yellow-700">
-                        Based on your recent performances, you're 85% ready for competition. 
+                        Based on your recent performances, you&apos;re 85% ready for competition. 
                         Focus on the recommended areas to reach 95% readiness.
                       </p>
                     </div>

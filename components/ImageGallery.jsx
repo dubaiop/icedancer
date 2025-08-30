@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Card, CardContent } from './ui/card'
+import { Badge } from './ui/badge'
 import { iceDanceGallery } from '../assets/midjourney-ice-dance.js'
 
 const ImageGallery = () => {

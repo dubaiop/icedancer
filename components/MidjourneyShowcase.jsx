@@ -199,7 +199,7 @@ const MidjourneyShowcase = () => {
                   <h4 className="font-semibold mb-3 text-yellow-400">Artistic Vision</h4>
                   <p className="text-gray-300 leading-relaxed">
                     This collection showcases the intersection of human artistry and AI creativity, 
-                    capturing the essence of ice dance through Midjourney's unique artistic lens. 
+                    capturing the essence of ice dance through Midjourney&apos;s unique artistic lens. 
                     Each image represents the perfect blend of technical precision and emotional expression.
                   </p>
                 </div>

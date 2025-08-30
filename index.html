@@ -4,10 +4,170 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- PWA Meta Tags -->
+    <!-- Theme color will be added dynamically for supported browsers to avoid warnings -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="AI Ice Dancer" />
+    <meta name="application-name" content="AI Ice Dancer" />
+    <!-- Browser-specific meta tags -->
+    <meta name="msapplication-TileColor" content="#2563eb" />
+    <meta name="msapplication-config" content="/browserconfig.xml" />
+    
+    <!-- CSS fallback for theme color on unsupported browsers -->
+    <style>
+      /* Fallback styling for browsers that don't support theme-color */
+      :root {
+        --theme-color: #2563eb;
+        --theme-color-dark: #1e40af;
+      }
+      
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --theme-color: #1e40af;
+        }
+      }
+      
+      /* Status bar styling for mobile browsers */
+      body {
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+    
+    <!-- Dynamic theme color script for supported browsers only -->
+    <script>
+      // Add theme-color meta tags only for browsers that support them
+      (function() {
+        const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+        const isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor);
+        const isEdge = /Edg/.test(navigator.userAgent);
+        const isSupported = isChrome || isSafari || isEdge;
+        
+        if (isSupported) {
+          // Add theme color meta tags dynamically for supported browsers
+          const head = document.head;
+          
+          // Light mode theme color
+          const lightTheme = document.createElement('meta');
+          lightTheme.name = 'theme-color';
+          lightTheme.content = '#2563eb';
+          lightTheme.media = '(prefers-color-scheme: light)';
+          head.appendChild(lightTheme);
+          
+          // Dark mode theme color
+          const darkTheme = document.createElement('meta');
+          darkTheme.name = 'theme-color';
+          darkTheme.content = '#1e40af';
+          darkTheme.media = '(prefers-color-scheme: dark)';
+          head.appendChild(darkTheme);
+          
+          // Fallback theme color
+          const fallbackTheme = document.createElement('meta');
+          fallbackTheme.name = 'theme-color';
+          fallbackTheme.content = '#2563eb';
+          head.appendChild(fallbackTheme);
+        } else {
+          // For unsupported browsers (Firefox, Opera), add visual feedback
+          document.addEventListener('DOMContentLoaded', function() {
+            const themeIndicator = document.createElement('div');
+            themeIndicator.style.cssText = `
+              position: fixed;
+              top: 0;
+              left: 0;
+              right: 0;
+              height: 3px;
+              background: linear-gradient(90deg, #2563eb, #1e40af);
+              z-index: 9999;
+              opacity: 0.8;
+              pointer-events: none;
+            `;
+            document.body.appendChild(themeIndicator);
+            
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+              themeIndicator.style.opacity = '0';
+              themeIndicator.style.transition = 'opacity 0.5s ease';
+              setTimeout(() => {
+                if (themeIndicator.parentNode) {
+                  themeIndicator.parentNode.removeChild(themeIndicator);
+                }
+              }, 500);
+            }, 3000);
+          });
+        }
+      })();
+    </script>
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.svg" />
+    <link rel="icon" type="image/svg+xml" sizes="32x32" href="/favicon-32x32.svg" />
+    <link rel="icon" type="image/svg+xml" sizes="16x16" href="/favicon-16x16.svg" />
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="AI-powered ice dance coaching platform with real-time analysis, ISU scoring, and personalized training recommendations." />
+    <meta name="keywords" content="ice dance, AI coaching, figure skating, sports analysis, dance training" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    
     <title>AI Ice Dancer - Revolutionizing Ice Dance Training</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- PWA Service Worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration)
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError)
+            })
+        })
+      }
+      
+      // PWA Install prompt
+      let deferredPrompt
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault()
+        deferredPrompt = e
+        
+        // Show install notification
+        const installBanner = document.createElement('div')
+        installBanner.innerHTML = `
+          <div style="position: fixed; top: 0; left: 0; right: 0; background: #2563eb; color: white; padding: 12px; text-align: center; z-index: 1000;">
+            <span>Install AI Ice Dancer for the best experience!</span>
+            <button onclick="installApp()" style="margin-left: 10px; background: white; color: #2563eb; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Install</button>
+            <button onclick="dismissInstall()" style="margin-left: 10px; background: transparent; color: white; border: 1px solid white; padding: 6px 12px; border-radius: 4px; cursor: pointer;">Later</button>
+          </div>
+        `
+        document.body.appendChild(installBanner)
+        
+        window.installApp = () => {
+          deferredPrompt.prompt()
+          deferredPrompt.userChoice.then((choiceResult) => {
+            deferredPrompt = null
+            installBanner.remove()
+          })
+        }
+        
+        window.dismissInstall = () => {
+          installBanner.remove()
+        }
+        
+        // Auto-hide after 10 seconds
+        setTimeout(() => {
+          if (installBanner.parentNode) {
+            installBanner.remove()
+          }
+        }, 10000)
+      })
+    </script>
   </body>
 </html>

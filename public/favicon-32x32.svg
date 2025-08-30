@@ -1,0 +1,15 @@
+<!-- This is a placeholder for favicon-32x32.png -->
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2563eb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e40af;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="6" fill="url(#gradient)"/>
+  <g transform="translate(16,16)">
+    <path d="M-6,-4 L6,-4 Q7,-4 7,-3 L7,3 Q7,4 6,4 L-6,4 Q-7,4 -7,3 L-7,-3 Q-7,-4 -6,-4 Z" fill="white" opacity="0.9"/>
+    <circle cx="0" cy="0" r="1.5" fill="#2563eb"/>
+    <path d="M-5,5 L5,5" stroke="white" stroke-width="1" stroke-linecap="round"/>
+  </g>
+</svg>

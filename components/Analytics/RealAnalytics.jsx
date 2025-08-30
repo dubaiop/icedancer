@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import analyticsService from '../../services/analyticsService'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Badge } from '../ui/badge'
@@ -8,10 +8,8 @@ import {
   TrendingDown, 
   Target, 
   Trophy, 
-  Clock, 
   BarChart3,
   LineChart,
-  PieChart,
   Activity,
   Calendar,
   Award,
@@ -19,7 +17,6 @@ import {
   Zap,
   Eye,
   Download,
-  Filter,
   RefreshCw
 } from 'lucide-react'
 
@@ -35,9 +32,9 @@ const RealAnalytics = () => {
 
   useEffect(() => {
     loadAnalyticsData()
-  }, [timeRange])
+  }, [timeRange, loadAnalyticsData])
 
-  const loadAnalyticsData = () => {
+  const loadAnalyticsData = useCallback(() => {
     setIsLoading(true)
     
     // Simulate API call delay
@@ -49,7 +46,7 @@ const RealAnalytics = () => {
       setAiInsights(analyticsService.getAIInsights())
       setIsLoading(false)
     }, 500)
-  }
+  }, [timeRange])
 
 
 

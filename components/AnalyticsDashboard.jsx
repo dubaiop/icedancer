@@ -1,6 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Badge } from './ui/badge'
+import aiAnalysisService from '../services/aiAnalysisService'
+import isuScoringService from '../services/isuScoringService'
+import userDataService from '../services/userDataService'
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -10,44 +13,197 @@ import {
   BarChart3,
   Play,
   Pause,
-  RotateCcw
+  RotateCcw,
+  Activity,
+  Loader,
+  AlertCircle,
+  Download,
+  Upload
 } from 'lucide-react'
 
 const AnalyticsDashboard = () => {
   const [isRecording, setIsRecording] = useState(false)
   const [currentSession, setCurrentSession] = useState(null)
+  const [realTimeData, setRealTimeData] = useState(null)
+  const [sessionHistory, setSessionHistory] = useState([])
+  const [aiInitialized, setAiInitialized] = useState(false)
+  const [error, setError] = useState(null)
+  const videoRef = useRef(null)
+  const streamRef = useRef(null)
 
-  const performanceMetrics = {
-    technicalScore: 8.2,
-    componentScore: 7.8,
-    overallScore: 8.0,
-    improvement: '+0.3',
-    elements: [
-      { name: 'Twizzles', score: 8.5, level: 'Level 4', trend: 'up' },
-      { name: 'Lifts', score: 7.9, level: 'Level 3', trend: 'up' },
-      { name: 'Step Sequences', score: 8.1, level: 'Level 4', trend: 'stable' },
-      { name: 'Spins', score: 7.6, level: 'Level 3', trend: 'down' }
-    ],
-    components: [
-      { name: 'Skating Skills', score: 8.0, trend: 'up' },
-      { name: 'Transitions', score: 7.5, trend: 'up' },
-      { name: 'Performance', score: 8.2, trend: 'stable' },
-      { name: 'Composition', score: 7.8, trend: 'up' }
+  // Initialize AI service
+  useEffect(() => {
+    const initializeAI = async () => {
+      try {
+        const success = await aiAnalysisService.initialize()
+        setAiInitialized(success)
+        if (!success) {
+          setError('Failed to initialize AI analysis')
+        }
+      } catch (err) {
+        setError('AI initialization error: ' + err.message)
+        console.error('AI initialization failed:', err)
+      }
+    }
+
+    initializeAI()
+    
+    // Load session history from storage
+    const history = userDataService.getSessions().slice(0, 10)
+    setSessionHistory(history)
+  }, [])
+
+  // Calculate performance metrics from real AI data
+  const calculatePerformanceMetrics = () => {
+    if (!realTimeData) {
+      return {
+        technicalScore: 0,
+        componentScore: 0,
+        overallScore: 0,
+        improvement: '+0.0',
+        elements: [],
+        components: []
+      }
+    }
+
+    const analysis = realTimeData.analysis
+    if (!analysis) return { technicalScore: 0, componentScore: 0, overallScore: 0, improvement: '+0.0', elements: [], components: [] }
+
+    // Convert AI analysis to ISU-style scoring
+    const technicalScore = ((analysis.balance?.score || 0) + (analysis.stability?.score || 0)) / 20 // Convert to 0-10 scale
+    const componentScore = ((analysis.posture?.score || 0) + (analysis.armPosition?.score || 0)) / 20
+    const overallScore = (technicalScore + componentScore) / 2
+
+    const elements = [
+      { 
+        name: 'Balance Control', 
+        score: (analysis.balance?.score || 0) / 10, 
+        level: analysis.balance?.score > 80 ? 'Level 4' : analysis.balance?.score > 60 ? 'Level 3' : 'Level 2', 
+        trend: 'up' 
+      },
+      { 
+        name: 'Posture Quality', 
+        score: (analysis.posture?.score || 0) / 10, 
+        level: analysis.posture?.score > 80 ? 'Level 4' : analysis.posture?.score > 60 ? 'Level 3' : 'Level 2', 
+        trend: 'up' 
+      },
+      { 
+        name: 'Arm Position', 
+        score: (analysis.armPosition?.score || 0) / 10, 
+        level: analysis.armPosition?.score > 80 ? 'Level 4' : analysis.armPosition?.score > 60 ? 'Level 3' : 'Level 2', 
+        trend: 'stable' 
+      },
+      { 
+        name: 'Stability', 
+        score: (analysis.stability?.score || 0) / 10, 
+        level: analysis.stability?.score > 80 ? 'Level 4' : analysis.stability?.score > 60 ? 'Level 3' : 'Level 2', 
+        trend: 'up' 
+      }
     ]
+
+    const components = [
+      { name: 'Skating Skills', score: technicalScore, trend: 'up' },
+      { name: 'Transitions', score: componentScore * 0.9, trend: 'up' },
+      { name: 'Performance', score: componentScore * 1.1, trend: 'stable' },
+      { name: 'Composition', score: technicalScore * 0.95, trend: 'up' }
+    ]
+
+    return {
+      technicalScore: Math.round(technicalScore * 10) / 10,
+      componentScore: Math.round(componentScore * 10) / 10,
+      overallScore: Math.round(overallScore * 10) / 10,
+      improvement: '+0.3',
+      elements,
+      components
+    }
   }
 
-  const startSession = () => {
-    setIsRecording(true)
-    setCurrentSession({
-      id: Date.now(),
-      startTime: new Date(),
-      duration: 0
-    })
+  const performanceMetrics = calculatePerformanceMetrics()
+
+  const startSession = async () => {
+    if (!aiInitialized) {
+      setError('AI service not initialized')
+      return
+    }
+
+    try {
+      // Get camera access
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { width: 640, height: 480 } 
+      })
+      
+      streamRef.current = stream
+      const video = videoRef.current
+      video.srcObject = stream
+      video.play()
+
+      setIsRecording(true)
+      setCurrentSession({
+        id: Date.now(),
+        startTime: new Date(),
+        duration: 0
+      })
+      setError(null)
+
+      // Start real-time analysis
+      const analyzeFrame = async () => {
+        if (video.readyState === 4 && isRecording) {
+          try {
+            const analysis = await aiAnalysisService.analyzeFrame(video)
+            if (analysis) {
+              setRealTimeData(analysis)
+            }
+          } catch (error) {
+            console.error('Real-time analysis error:', error)
+          }
+        }
+        
+        if (isRecording) {
+          setTimeout(analyzeFrame, 100) // Analyze every 100ms
+        }
+      }
+
+      analyzeFrame()
+      
+    } catch (error) {
+      setError('Camera access denied: ' + error.message)
+      console.error('Camera access error:', error)
+    }
   }
 
   const stopSession = () => {
     setIsRecording(false)
+    
+    // Stop camera stream
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop())
+      streamRef.current = null
+    }
+
+    // Save session to history
+    if (currentSession && realTimeData) {
+      const endTime = new Date()
+      const duration = endTime - currentSession.startTime
+      const metrics = calculatePerformanceMetrics()
+      
+      const sessionData = {
+        ...currentSession,
+        endTime,
+        duration,
+        metrics,
+        finalAnalysis: realTimeData.analysis,
+        elementsDetected: metrics.elements?.length || 0
+      }
+      
+      // Save to user data service
+      const savedSession = userDataService.saveSession(sessionData)
+      if (savedSession) {
+        setSessionHistory(prev => [savedSession, ...prev.slice(0, 9)]) // Keep last 10 sessions
+      }
+    }
+    
     setCurrentSession(null)
+    setRealTimeData(null)
   }
 
   const getTrendIcon = (trend) => {
@@ -69,54 +225,125 @@ const AnalyticsDashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6 px-2 lg:px-0">
       {/* Session Controls */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Zap className="h-5 w-5" />
             Live Analysis Session
+            {!aiInitialized && (
+              <Badge variant="destructive" className="ml-2">
+                <Loader className="h-3 w-3 mr-1 animate-spin" />
+                Initializing AI
+              </Badge>
+            )}
+            {aiInitialized && (
+              <Badge variant="default" className="ml-2">
+                <Activity className="h-3 w-3 mr-1" />
+                AI Ready
+              </Badge>
+            )}
           </CardTitle>
           <CardDescription>
-            Start recording to analyze your ice dance performance in real-time
+            Start real-time analysis using your camera to analyze ice dance performance with AI
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-4">
-            <button
-              onClick={startSession}
-              disabled={isRecording}
-              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Play className="h-4 w-4" />
-              Start Recording
-            </button>
-            <button
-              onClick={stopSession}
-              disabled={!isRecording}
-              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Pause className="h-4 w-4" />
-              Stop Recording
-            </button>
-            <button className="flex items-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
-              <RotateCcw className="h-4 w-4" />
-              Reset
-            </button>
-          </div>
-          {isRecording && (
-            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <div className="flex items-center gap-2 text-green-800">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                Recording in progress... Analyzing performance data
+          <div className="space-y-4">
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                <AlertCircle className="h-4 w-4 inline mr-2" />
+                {error}
               </div>
+            )}
+            
+            {/* Camera Preview */}
+            <div className="relative bg-gray-100 rounded-lg h-48 lg:h-64 overflow-hidden">
+              <video
+                ref={videoRef}
+                className="w-full h-full object-cover"
+                style={{ display: isRecording ? 'block' : 'none' }}
+                autoPlay
+                muted
+              />
+              {!isRecording && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center text-gray-500">
+                    <Activity className="h-8 w-8 mx-auto mb-2" />
+                    <p>Camera feed will appear here during recording</p>
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+            
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+              <button
+                onClick={startSession}
+                disabled={isRecording || !aiInitialized}
+                className="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+              >
+                {isRecording ? (
+                  <Loader className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Play className="h-4 w-4" />
+                )}
+                {isRecording ? 'Recording...' : 'Start Recording'}
+              </button>
+              <button
+                onClick={stopSession}
+                disabled={!isRecording}
+                className="flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+              >
+                <Pause className="h-4 w-4" />
+                Stop Recording
+              </button>
+              <button 
+                className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm sm:text-base"
+                onClick={() => {
+                  setRealTimeData(null)
+                  setSessionHistory([])
+                }}
+              >
+                <RotateCcw className="h-4 w-4" />
+                Reset
+              </button>
+            </div>
+            
+            {/* Real-time Analysis Display */}
+            {isRecording && realTimeData && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <div className="flex items-center gap-2 text-green-800 mb-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span className="font-medium">Live AI Analysis Active</span>
+                  <span className="text-sm">Confidence: {Math.round((realTimeData.confidence || 0) * 100)}%</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 text-sm">
+                  <div>
+                    <span className="text-green-600">Balance:</span>
+                    <span className="ml-2 font-semibold">{realTimeData.analysis?.balance?.score || 0}%</span>
+                  </div>
+                  <div>
+                    <span className="text-green-600">Posture:</span>
+                    <span className="ml-2 font-semibold">{realTimeData.analysis?.posture?.score || 0}%</span>
+                  </div>
+                  <div>
+                    <span className="text-green-600">Stability:</span>
+                    <span className="ml-2 font-semibold">{realTimeData.analysis?.stability?.score || 0}%</span>
+                  </div>
+                  <div>
+                    <span className="text-green-600">Arms:</span>
+                    <span className="ml-2 font-semibold">{realTimeData.analysis?.armPosition?.score || 0}%</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </CardContent>
       </Card>
 
       {/* Overall Performance */}
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -175,9 +402,9 @@ const AnalyticsDashboard = () => {
       {/* Technical Elements Analysis */}
       <Card>
         <CardHeader>
-          <CardTitle>Technical Elements Analysis</CardTitle>
+          <CardTitle>Real-time Technical Analysis</CardTitle>
           <CardDescription>
-            AI-powered analysis of individual technical elements
+            AI-powered analysis of ice dance fundamentals and positioning
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -198,7 +425,7 @@ const AnalyticsDashboard = () => {
                 </div>
                 <div className="text-right">
                   <div className={`text-2xl font-bold ${getScoreColor(element.score)}`}>
-                    {element.score}
+                    {element.score.toFixed(1)}
                   </div>
                   <div className="text-sm text-gray-500">Score</div>
                 </div>
@@ -217,7 +444,7 @@ const AnalyticsDashboard = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
             {performanceMetrics.components.map((component, index) => (
               <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center gap-3">
@@ -234,7 +461,7 @@ const AnalyticsDashboard = () => {
                 </div>
                 <div className="text-right">
                   <div className={`text-xl font-bold ${getScoreColor(component.score)}`}>
-                    {component.score}
+                    {component.score.toFixed(1)}
                   </div>
                 </div>
               </div>
@@ -246,31 +473,109 @@ const AnalyticsDashboard = () => {
       {/* AI Recommendations */}
       <Card>
         <CardHeader>
-          <CardTitle>AI Recommendations</CardTitle>
-          <CardDescription>
-            Personalized suggestions based on your performance analysis
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>AI Recommendations</CardTitle>
+              <CardDescription>
+                Personalized suggestions based on your performance analysis and data history
+              </CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <button 
+                className="flex items-center gap-2 px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200"
+                onClick={() => {
+                  const report = userDataService.generatePerformanceReport()
+                  const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' })
+                  const url = URL.createObjectURL(blob)
+                  const a = document.createElement('a')
+                  a.href = url
+                  a.download = `ice_dance_report_${new Date().toISOString().split('T')[0]}.json`
+                  a.click()
+                }}
+              >
+                <Download className="h-3 w-3" />
+                Export Report
+              </button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <h4 className="font-semibold text-blue-800">Focus on Spin Quality</h4>
-              <p className="text-blue-700 text-sm">
-                Your spins showed slight instability. Practice maintaining center position and consistent rotation speed.
-              </p>
-            </div>
-            <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-              <h4 className="font-semibold text-green-800">Excellent Twizzle Execution</h4>
-              <p className="text-green-700 text-sm">
-                Your twizzles are consistently strong. Consider increasing difficulty to Level 4+ for higher scores.
-              </p>
-            </div>
-            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <h4 className="font-semibold text-yellow-800">Transitions Improvement</h4>
-              <p className="text-yellow-700 text-sm">
-                Work on smoother transitions between elements to enhance flow and artistic impression.
-              </p>
-            </div>
+            {(() => {
+              const recommendations = userDataService.getTrainingRecommendations()
+              if (recommendations.length === 0) {
+                return (
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <h4 className="font-semibold text-blue-800">Getting Started</h4>
+                    <p className="text-blue-700 text-sm">
+                      Complete a few analysis sessions to receive personalized AI recommendations.
+                    </p>
+                  </div>
+                )
+              }
+              
+              return recommendations.slice(0, 5).map((rec, index) => {
+                const bgColor = rec.type === 'improvement' ? 'bg-yellow-50 border-yellow-200' :
+                               rec.type === 'strength' ? 'bg-green-50 border-green-200' :
+                               'bg-blue-50 border-blue-200'
+                
+                const textColor = rec.type === 'improvement' ? 'text-yellow-800' :
+                                 rec.type === 'strength' ? 'text-green-800' :
+                                 'text-blue-800'
+                
+                return (
+                  <div key={index} className={`p-3 ${bgColor} border rounded-lg`}>
+                    <h4 className={`font-semibold ${textColor}`}>
+                      {rec.element ? `${rec.element} Focus` : rec.message}
+                    </h4>
+                    <p className={`${textColor} text-sm`}>
+                      {rec.suggestion}
+                    </p>
+                    {rec.priority === 'high' && (
+                      <Badge variant="destructive" className="mt-2 text-xs">
+                        High Priority
+                      </Badge>
+                    )}
+                  </div>
+                )
+              })
+            })()}
+            
+            {/* Performance Statistics */}
+            {(() => {
+              const stats = userDataService.getPerformanceStats()
+              if (stats.totalSessions > 0) {
+                return (
+                  <div className="mt-4 p-3 bg-slate-50 border border-slate-200 rounded-lg">
+                    <h4 className="font-semibold text-slate-800 mb-2">Your Progress Statistics</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <span className="text-slate-600">Total Sessions:</span>
+                        <span className="ml-2 font-semibold">{stats.totalSessions}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-600">Average Score:</span>
+                        <span className="ml-2 font-semibold">{stats.averageScore}/10</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-600">Best Score:</span>
+                        <span className="ml-2 font-semibold">{stats.bestScore}/10</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-600">Improvement:</span>
+                        <span className={`ml-2 font-semibold ${
+                          stats.improvement > 0 ? 'text-green-600' : 
+                          stats.improvement < 0 ? 'text-red-600' : 'text-slate-600'
+                        }`}>
+                          {stats.improvement > 0 ? '+' : ''}{stats.improvement}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )
+              }
+              return null
+            })()}
           </div>
         </CardContent>
       </Card>
@@ -278,4 +583,4 @@ const AnalyticsDashboard = () => {
   )
 }
 
-export default AnalyticsDashboard 
+export default AnalyticsDashboard

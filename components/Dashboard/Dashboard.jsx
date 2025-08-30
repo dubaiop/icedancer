@@ -1,42 +1,37 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import RealAnalytics from '../Analytics/RealAnalytics'
 import VideoAnalysis from '../VideoAnalysis'
 import ImageGallery from '../ImageGallery'
+import CoachDashboard from '../Coach/CoachDashboard'
+import AthleteProgressSharing from '../Athlete/AthleteProgressSharing'
 import { 
   BarChart3, 
   Camera, 
-  Users, 
   Trophy, 
   Target, 
-  Star, 
-  Zap, 
   TrendingUp,
   Brain,
-  Settings,
-  Play,
   Award,
   Clock,
   CheckCircle,
   Image,
   Sparkles,
   LogOut,
-  User,
   Bell,
   Search,
-  Plus,
   Calendar,
-  Activity,
   Target as TargetIcon,
   TrendingUp as TrendingUpIcon,
-  Award as AwardIcon
+  Users,
+  MessageSquare
 } from 'lucide-react'
 
 const Dashboard = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState('overview')
-  const [demoMode, setDemoMode] = useState(false)
+
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: <BarChart3 className="h-4 w-4" /> },
@@ -44,7 +39,13 @@ const Dashboard = ({ user, onLogout }) => {
     { id: 'video', label: 'Video Analysis', icon: <Camera className="h-4 w-4" /> },
     { id: 'training', label: 'Training Tools', icon: <Target className="h-4 w-4" /> },
     { id: 'gallery', label: 'Image Gallery', icon: <Image className="h-4 w-4" /> },
-    { id: 'schedule', label: 'Schedule', icon: <Calendar className="h-4 w-4" /> }
+    { id: 'schedule', label: 'Schedule', icon: <Calendar className="h-4 w-4" /> },
+    ...(user?.role === 'coach' ? [
+      { id: 'coach', label: 'Coach Dashboard', icon: <Users className="h-4 w-4" /> }
+    ] : []),
+    ...(user?.role === 'athlete' ? [
+      { id: 'sharing', label: 'Progress Sharing', icon: <MessageSquare className="h-4 w-4" /> }
+    ] : [])
   ]
 
   const quickStats = [
@@ -120,6 +121,10 @@ const Dashboard = ({ user, onLogout }) => {
         return <VideoAnalysis />
       case 'gallery':
         return <ImageGallery />
+      case 'coach':
+        return <CoachDashboard />
+      case 'sharing':
+        return <AthleteProgressSharing />
       case 'schedule':
         return (
           <div className="space-y-6">
@@ -359,7 +364,7 @@ const Dashboard = ({ user, onLogout }) => {
                     <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                       <h4 className="font-semibold text-yellow-800 mb-2">Competition Readiness</h4>
                       <p className="text-sm text-yellow-700">
-                        Based on your recent performances, you're 85% ready for competition. 
+                        Based on your recent performances, you&apos;re 85% ready for competition. 
                         Focus on the recommended areas to reach 95% readiness.
                       </p>
                     </div>
@@ -452,15 +457,7 @@ const Dashboard = ({ user, onLogout }) => {
         {renderTabContent()}
       </div>
 
-      {/* Demo Mode Indicator */}
-      {demoMode && (
-        <div className="fixed bottom-4 right-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-lg shadow-lg backdrop-blur-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-            <span className="text-sm font-medium">Demo Mode Active</span>
-          </div>
-        </div>
-      )}
+
     </div>
   )
 }
