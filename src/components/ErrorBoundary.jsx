@@ -1,6 +1,4 @@
 import React from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
-import { Button } from './ui/button'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
 
 class ErrorBoundary extends React.Component {
@@ -32,30 +30,30 @@ class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-red-50 to-pink-100 flex items-center justify-center p-4">
-          <Card className="w-full max-w-md shadow-2xl border-0">
-            <CardHeader className="text-center pb-6">
+          <div className="w-full max-w-md bg-white rounded-lg shadow-2xl border-0 overflow-hidden">
+            <div className="text-center p-6 pb-6">
               <div className="flex items-center justify-center mb-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-pink-600 rounded-xl flex items-center justify-center">
                   <AlertTriangle className="h-6 w-6 text-white" />
                 </div>
               </div>
-              <CardTitle className="text-2xl font-bold text-slate-900">
+              <h3 className="text-2xl font-bold text-slate-900 mb-2">
                 Oops! Something went wrong
-              </CardTitle>
-              <CardDescription className="text-slate-600">
+              </h3>
+              <p className="text-slate-600">
                 We encountered an unexpected error. Please try refreshing the page.
-              </CardDescription>
-            </CardHeader>
+              </p>
+            </div>
             
-            <CardContent className="space-y-6">
+            <div className="p-6 pt-0 space-y-6">
               <div className="text-center">
-                <Button 
+                <button 
                   onClick={this.handleReset}
-                  className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white"
+                  className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 text-white font-medium rounded-lg transition-colors"
                 >
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Refresh Page
-                </Button>
+                </button>
               </div>
               
               {process.env.NODE_ENV === 'development' && this.state.error && (
@@ -76,8 +74,8 @@ class ErrorBoundary extends React.Component {
                   </div>
                 </details>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       )
     }
